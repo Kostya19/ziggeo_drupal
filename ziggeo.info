@@ -1,0 +1,6 @@
+name = Ziggeo
+description = Provides a Ziggeo field type that allows you record and playback videos using Ziggeo Video API
+core = 7.x
+package = Fields
+dependencies[] = field
+dependencies[] = image

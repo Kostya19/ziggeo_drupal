@@ -1,0 +1,18 @@
+/**
+ * @file
+ * Styles for widget of ziggeo field.
+ */
+
+.ziggeo-remove-button {
+  margin-top: 10px;
+}
+.field-widget-ziggeo-recorder .form-item {
+  margin: 8px 0 0;
+  padding: 0;
+}
+.ziggeo-remove-checkbox {
+  display:none;
+}
+.view-player-play-label {
+  z-index: 499;
+}
