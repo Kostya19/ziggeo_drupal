@@ -36,7 +36,7 @@ function ziggeo_field_info() {
 function ziggeo_field_settings_form($field, $instance, $has_data) {
   $settings = $field['settings'];
 
-  $register_url = 'https://ziggeo.com/signup/track/drupal';
+  $register_url = 'https://ziggeo.com/signup?track=drupal';
   $form['ziggeo_field_settings_instructions'] = array(
     '#type' => 'item',
     '#markup' => t('You can see this settings in your Ziggeo account: choose or create an application, then select "Overview" item. If you don\'t have Ziggeo account, please <a href="@register_link" target="_blank">register</a>.', array('@register_link' => $register_url)),

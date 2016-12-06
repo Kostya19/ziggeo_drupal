@@ -25,7 +25,7 @@ INSTALLATION
 USAGE
 -----
 To use this module you should first sign up in Ziggeo service:
-https://ziggeo.com/signup/track/drupal
+https://ziggeo.com/signup?track=drupal
 
 Create or Edit a content-type (Structure -> Content types) and select
 "Manage fields" tab. You can also use Ziggeo field with any entity by opening
