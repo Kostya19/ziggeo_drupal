@@ -1806,7 +1806,8 @@ function ziggeo_field_is_contained_item_in_translations($entity_type, $entity, $
  */
 function ziggeo_field_is_contained_item_in_default($entity_type, $entity, $field, $instance, $langcode, $field_item_token) {
   $field_default_value = field_get_default_value($entity_type, $entity, $field, $instance, $langcode);
-  if ($field_default_value['0']['token'] == $field_item_token) {
+  if (!empty($field_default_value) &&
+      $field_default_value['0']['token'] == $field_item_token) {
     $is_default_value = TRUE;
   }
   else {
