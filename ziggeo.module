@@ -340,6 +340,7 @@ function ziggeo_field_widget_settings_form($field, $instance) {
   $form['embedding_size_fieldset'] = array(
     '#type' => 'fieldset',
     '#title' => t('Size of the embedding'),
+    '#description' => t('This only changes the size of the embedding on your page - how much space it takes on the page. It will however not impact the resolution of your video(s).'),
   );
   $form['embedding_size_fieldset']['embedding_size'] = array(
     '#type' => 'select',
@@ -402,6 +403,7 @@ function ziggeo_field_widget_settings_form($field, $instance) {
   $form['recording_resolution_fieldset'] = array(
     '#type' => 'fieldset',
     '#title' => t('Video Recording Resolution'),
+    '#description' => t('This changes recorder_width and recorder_height parameters in Ziggeo. It does not impact the end video resolution. To change that you would need to change default video profile within Ziggeo dashboard.'),
   );
   $form['recording_resolution_fieldset']['video_resolution'] = array(
     '#type' => 'select',

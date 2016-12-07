@@ -29,7 +29,8 @@ https://ziggeo.com/signup?track=drupal
 
 Create or Edit a content-type (Structure -> Content types) and select
 "Manage fields" tab. You can also use Ziggeo field with any entity by opening
-"Manage fields" tab in entity settings.
+"Manage fields" tab in entity settings. To let people comment on it through the
+video comments, open the tab "Comment Fields" and use Ziggeo field there.
 
 Type name of new field in "Add new field" textbox, then select "Ziggeo Field"
 field type and press "Save" button.
@@ -43,7 +44,8 @@ or edit content.
 
 Go to the "Manage Display" tab of your entity type, and select the formatter for
 the desired Ziggeo field. Then click the gear icon to configure formatter
-settings. Formatter will use when view a content.
+settings. Formatter will use when view a content. Formatter do not be shown
+unless the video was recorded or uploaded.
 
 Now you can add content with video.
 
@@ -56,6 +58,14 @@ To replace a video, you can press "Re-record" on the recorder or press Remove
 (Reset) button under the recorder. In second case new video will be created on
 your Ziggeo account and old video will be deleted. If you want re-upload a video
 you can use only Remove (Reset) button.
+
+When you create new revision or translation of your page, your video will be
+duplicated as well. This way you can edit new revision or translation
+independently of the old field. While this has it's advantages it will lead to
+multiple videos being stored for the same page in your Ziggeo account. Also be
+careful if you are editing a video and at the same time creating a new revision,
+use the Remove (Reset) button instead "Re-record" for this, otherwise you will
+have two duplicated new videos but old will not be saved.
 
 When you remove video from content or when you delete content, video will be
 deleted from your Ziggeo account.
