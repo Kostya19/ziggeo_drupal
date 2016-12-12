@@ -44,8 +44,8 @@ or edit content.
 
 Go to the "Manage Display" tab of your entity type, and select the formatter for
 the desired Ziggeo field. Then click the gear icon to configure formatter
-settings. Formatter will use when view a content. Formatter do not be shown
-unless the video was recorded or uploaded.
+settings. Formatter will be used when someone views the content. Formatter will
+not be shown unless the video was recorded or uploaded.
 
 Now you can add content with video.
 
@@ -66,6 +66,14 @@ multiple videos being stored for the same page in your Ziggeo account. Also be
 careful if you are editing a video and at the same time creating a new revision,
 use the Remove (Reset) button instead "Re-record" for this, otherwise you will
 have two duplicated new videos but old will not be saved.
+
+If you recorded or uploaded new video and then have not saved the content (just
+leave page), video will saved in your ziggeo account as temporary (with
+attribute expiration_days = 1) and should be deleted next day. To make they are
+removed automatically, you should enable "Automatically delete expired videos"
+in Authorization settings: log into your Ziggeo account, click on the "Manage"
+menu of the application and go to "Authorization Settings" tab. This will avoid
+storage in your account of trash video.
 
 When you remove video from content or when you delete content, video will be
 deleted from your Ziggeo account.
