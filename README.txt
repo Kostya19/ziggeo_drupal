@@ -67,13 +67,14 @@ careful if you are editing a video and at the same time creating a new revision,
 use the Remove (Reset) button instead "Re-record" for this, otherwise you will
 have two duplicated new videos but old will not be saved.
 
-If you recorded or uploaded new video and then have not saved the content (just
-leave page), video will saved in your ziggeo account as temporary (with
-attribute expiration_days = 1) and should be deleted next day. To make they are
-removed automatically, you should enable "Automatically delete expired videos"
-in Authorization settings: log into your Ziggeo account, click on the "Manage"
-menu of the application and go to "Authorization Settings" tab. This will avoid
-storage in your account of trash video.
+If you have recorded or uploaded a new video and then have not saved the content
+(just left the page), video will saved in your Ziggeo account as temporary (with
+expiration_days = 1 parameter) and should be deleted next day. To make sure that
+they are removed automatically, you should enable "Automatically delete expired
+videos" found in Authorization settings. They can be found by logging into your
+Ziggeo account, clicking on the "Manage" menu of the application you are using
+and go to "Authorization Settings" tab. This will avoid storage of unused video
+in your account.
 
 When you remove video from content or when you delete content, video will be
 deleted from your Ziggeo account.
