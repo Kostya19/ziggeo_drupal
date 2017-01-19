@@ -21,3 +21,18 @@ function ziggeo_field_schema($field) {
     'columns' => $columns,
   );
 }
+
+
+/**
+ * Implements hook_requirements().
+ */
+function ziggeo_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime' ||
+      $phase == 'update') {
+    $requirements = ziggeo_get_requirements();
+  }
+
+  return $requirements;
+}

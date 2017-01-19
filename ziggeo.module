@@ -1557,6 +1557,41 @@ function theme_ziggeo_remove_button($variables) {
 }
 
 /**
+ * ZiggeoPhpSdk library.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function ziggeo_libraries_info() {
+  $libraries['ZiggeoPhpSdk'] = array(
+    'name' => 'Ziggeo PHP Server SDK',
+    'vendor url' => 'https://ziggeo.com/docs/sdks/server-side/php',
+    'download url' => 'https://github.com/Ziggeo/ZiggeoPhpSdk/archive/master.zip',
+    'version arguments' => array(
+      'file' => 'composer.json',
+      'pattern' => '/"version": "([0-9a-zA-Z.-]+)"/',
+    ),
+    'files' => array(
+      'php' => array(
+        'Ziggeo.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function ziggeo_modules_enabled($modules) {
+  if (in_array('ziggeo', $modules)) {
+    ziggeo_check_requirements();
+  }
+}
+
+/**
  * Local functions
  */
 
@@ -1576,6 +1611,7 @@ function theme_ziggeo_remove_button($variables) {
  *   the attachment types and the values are the attached data.
  */
 function ziggeo_libraries($application_token, $language = NULL) {
+  ziggeo_check_requirements();
   $attached_array = array(
     'css' => array(
       '//assets-cdn.ziggeo.com/v1-stable/ziggeo.css' => array('type' => 'external', 'weight' => 1),
@@ -1667,7 +1703,13 @@ function ziggeo_get_ziggeo_object($field_name) {
   $application_token = $field_info['settings']['application_token'];
   $private_key = $field_info['settings']['private_key'];
   $encryption_key = $field_info['settings']['encryption_key'];
-  include_once drupal_get_path('module', 'ziggeo') . '/ZiggeoPhpSdk/Ziggeo.php';
+  $requirements = ziggeo_get_requirements();
+  if ($requirements['ZiggeoPhpSdk']['severity'] != 2) {
+    libraries_load('ZiggeoPhpSdk');
+  } else {
+    drupal_set_message($requirements['ZiggeoPhpSdk']['description'], 'warning');
+    return new stdClass();
+  }
 
   return new Ziggeo($application_token, $private_key, $encryption_key);
 }
@@ -1830,7 +1872,11 @@ function ziggeo_field_is_contained_item_in_default($entity_type, $entity, $field
 function ziggeo_remove_temporary_attribute($ziggeo, $video_token) {
   $arguments = array('expiration_days' => 0);
   try {
-    $ziggeo->videos()->update($video_token, $arguments);
+    if (method_exists($ziggeo, 'videos')) {
+      $ziggeo->videos()->update($video_token, $arguments);
+    } else {
+      throw new Exception('ZiggeoPhpSdk not available.');
+    }
   }
   catch (Exception $e) {
     drupal_set_message(t('Error when update the video "@video_token" on ziggeo.com: @error_message', array('@video_token' => $video_token, '@error_message' => $e->getMessage())), 'warning');
@@ -1851,13 +1897,17 @@ function ziggeo_remove_temporary_attribute($ziggeo, $video_token) {
 function ziggeo_duplicate_server_video($ziggeo, $video_token) {
   $duplicate_video_token = NULL;
   try {
-    $video_file_copy = $ziggeo->videos()->download_video($video_token);
-    $temp_name = drupal_tempnam(file_directory_temp(), 'ziggeo');
-    file_put_contents($temp_name, $video_file_copy);
-    $arguments = array('file' => $temp_name);
-    $create_video_response = $ziggeo->videos()->create($arguments);
-    unlink($temp_name);
-    $duplicate_video_token = $create_video_response->token;
+    if (method_exists($ziggeo, 'videos')) {
+      $video_file_copy = $ziggeo->videos()->download_video($video_token);
+      $temp_name = drupal_tempnam(file_directory_temp(), 'ziggeo');
+      file_put_contents($temp_name, $video_file_copy);
+      $arguments = array('file' => $temp_name);
+      $create_video_response = $ziggeo->videos()->create($arguments);
+      unlink($temp_name);
+      $duplicate_video_token = $create_video_response->token;
+    } else {
+      throw new Exception('ZiggeoPhpSdk not available.');
+    }
   }
   catch (Exception $e) {
     drupal_set_message(t('Error when copy the video "@video_token" on ziggeo.com: @error_message', array('@video_token' => $video_token, '@error_message' => $e->getMessage())), 'warning');
@@ -1876,9 +1926,54 @@ function ziggeo_duplicate_server_video($ziggeo, $video_token) {
  */
 function ziggeo_delete_server_video($ziggeo, $video_token) {
   try {
-    $ziggeo->videos()->delete($video_token);
+    if (method_exists($ziggeo, 'videos')) {
+      $ziggeo->videos()->delete($video_token);
+    } else {
+      throw new Exception('ZiggeoPhpSdk not available.');
+    }
   }
   catch (Exception $e) {
     drupal_set_message(t('Error when delete the video "@video_token" on ziggeo.com: @error_message', array('@video_token' => $video_token, '@error_message' => $e->getMessage())), 'warning');
+  }
+}
+
+/**
+ * Get requirements of ziggeo module.
+ *
+ * @return array
+ *   An associative array for hook_requirements().
+ */
+function ziggeo_get_requirements() {
+  $requirements = array();
+  $t = get_t();
+  $library = libraries_detect('ZiggeoPhpSdk');
+  $error_type = isset($library['error']) ? drupal_ucfirst($library['error']) : '';
+  $error_message = isset($library['error message']) ? $library['error message'] : '';
+
+  if (empty($library['installed'])) {
+    $requirements['ZiggeoPhpSdk'] = array(
+      'title' => $t('Ziggeo PHP Server SDK'),
+      'severity' => 2,
+      'description' => $t('!error You need to download !ZiggeoPhpSdk, extract the archive and place files in the %path directory on your server. Make sure the path to the Ziggeo.php file becomes: "sites/all/libraries/ZiggeoPhpSdk/Ziggeo.php".', array('!error' => $error_message, '!ZiggeoPhpSdk' => l($t('Ziggeo PHP Server SDK'), $library['download url']), '%path' => 'sites/all/libraries/ZiggeoPhpSdk')),
+    );
+  }
+  else {
+    $requirements['ZiggeoPhpSdk'] = array(
+      'title' => $t('Ziggeo PHP Server SDK'),
+      'severity' => 0,
+      'value' => $library['version'],
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Check requirements of ziggeo module. Displays warning message if not fit.
+ */
+function ziggeo_check_requirements() {
+  $requirements = ziggeo_get_requirements();
+  if ($requirements['ZiggeoPhpSdk']['severity'] == 2) {
+    drupal_set_message($requirements['ZiggeoPhpSdk']['description'], 'warning');
   }
 }

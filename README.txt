@@ -8,7 +8,9 @@ Ziggeo service. You can add Ziggeo field to any entity (e.g. node or user).
 REQUIREMENTS
 ------------
 
-PHP 5.5 or higher.
+ * PHP 5.5 or higher.
+ * Libraries module (https://drupal.org/project/libraries)
+ * Ziggeo PHP Server SDK (https://github.com/Ziggeo/ZiggeoPhpSdk)
 
 
 INSTALLATION
@@ -19,7 +21,14 @@ INSTALLATION
    "modules" folder, since that will cause problems and is bad practice in
    general. If "sites/all/modules" doesn't exist yet, just create it.
 
-2. Enable the module from the Administration area modules page (admin/modules).
+2. Download and unpack the Libraries module directory in your modules folder.
+
+3. Download and unpack Ziggeo PHP Server SDK in "sites/all/libraries" folder
+   (https://github.com/Ziggeo/ZiggeoPhpSdk/archive/master.zip).
+   Make sure the path to the Ziggeo.php file becomes:
+   "sites/all/libraries/ZiggeoPhpSdk/Ziggeo.php".
+
+4. Enable the modules from the Administration area modules page (admin/modules).
 
 
 USAGE
