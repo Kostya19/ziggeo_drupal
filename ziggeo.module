@@ -897,30 +897,6 @@ function ziggeo_remove_button_ajax_callback(&$form, $form_state) {
   $triggering_element_language = $form_state['triggering_element']['#parents'][1];
   $triggering_element_delta = $form_state['triggering_element']['#parents'][2];
 
-  $widget_settings = $form_state['field'][$triggering_element_name][$triggering_element_language]['instance']['widget']['settings'];
-  if ($widget_settings['embedding_size_fieldset']['embedding_size'] == 'custom') {
-    $embedding_width = $widget_settings['embedding_size_fieldset']['embedding_width'];
-    $embedding_height = $widget_settings['embedding_size_fieldset']['embedding_height'];
-  }
-  elseif ($widget_settings['embedding_size_fieldset']['embedding_size'] == 'responsive') {
-    $embedding_width = '';
-    $embedding_height = '';
-  }
-  else {
-    $selected_size_array = explode('x', $widget_settings['embedding_size_fieldset']['embedding_size']);
-    $embedding_width = $selected_size_array[0];
-    $embedding_height = $selected_size_array[1];
-  }
-  if ($widget_settings['recording_resolution_fieldset']['video_resolution'] == 'custom') {
-    $recording_width = $widget_settings['recording_resolution_fieldset']['recording_width'];
-    $recording_height = $widget_settings['recording_resolution_fieldset']['recording_height'];
-  }
-  else {
-    $selected_resolution_array = explode('x', $widget_settings['recording_resolution_fieldset']['video_resolution']);
-    $recording_width = $selected_resolution_array[0];
-    $recording_height = $selected_resolution_array[1];
-  }
-
   // Creation of empty ziggeo widget.
   $ziggeo_markup = isset($form[$triggering_element_name][$triggering_element_language][$triggering_element_delta]) ? $form[$triggering_element_name][$triggering_element_language][$triggering_element_delta]['ziggeo_element']['#markup'] : '';
 
