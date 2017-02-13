@@ -1522,7 +1522,7 @@ function ziggeo_theme($existing, $type, $theme, $path) {
  *
  * @ingroup themeable
  */
-function theme_ziggeo_element($variables) {
+function theme_ziggeo_element(array $variables) {
   $output = '';
   if (isset($variables['ziggeo_element']['#is_default']) &&
       $variables['ziggeo_element']['#is_default'] &&
@@ -1553,7 +1553,7 @@ function theme_ziggeo_element($variables) {
  *
  * @ingroup themeable
  */
-function theme_ziggeo_remove_button($variables) {
+function theme_ziggeo_remove_button(array $variables) {
   $output = '';
   $output .= '<input';
   $output .= ' type="button"';
@@ -1973,8 +1973,7 @@ function ziggeo_get_requirements() {
         '@error' => $error_message,
         '!ZiggeoPhpSdk' => $ziggeo_php_sdk_link,
         '%path' => 'sites/all/libraries/ZiggeoPhpSdk',
-        )
-      ),
+      )),
     );
   }
   else {

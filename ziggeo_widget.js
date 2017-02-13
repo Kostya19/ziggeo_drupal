@@ -5,7 +5,7 @@
 
 (function ($) {
 
-  "use strict";
+  'use strict';
 
   Drupal.behaviors.ziggeo = {
     attach: function (context, settings) {
