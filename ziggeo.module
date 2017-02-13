@@ -9,6 +9,17 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function ziggeo_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#ziggeo':
+      // Return a line-break version of the module README.txt.
+      return check_markup(file_get_contents(dirname(__FILE__) . "/README.txt"));
+  }
+}
+
+/**
  * Defining Custom Ziggeo Field Type.
  */
 
