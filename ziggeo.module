@@ -4,11 +4,12 @@
  * @file
  * Provides a Ziggeo field type.
  *
- * Provides a Ziggeo field type that allows you record and playback videos using Ziggeo Video API.
+ * Provides a Ziggeo field type that allows you record and playback videos using
+ * Ziggeo Video API.
  */
 
 /**
- * Defining Custom Ziggeo Field Type
+ * Defining Custom Ziggeo Field Type.
  */
 
 /**
@@ -122,30 +123,31 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
 
   if ($is_add_delete_translatable_field) {
     if ($is_translatable_field) {
-      define('ADD_TRANSLATABLE_FIELD', 1);
-      define('DELETE_TRANSLATABLE_FIELD', 2);
+      define('ZIGGEO_ADD_TRANSLATABLE_FIELD', 1);
+      define('ZIGGEO_DELETE_TRANSLATABLE_FIELD', 2);
       $select_translations_database = db_select('field_data_' . $field_name, 'f')
-          ->fields('f', array('language'))
-          ->condition('entity_id', entity_extract_ids($entity_type, $entity)[0])
-          ->execute()
-          ->fetchCol();
+        ->fields('f', array('language'))
+        ->condition('entity_id', entity_extract_ids($entity_type, $entity)[0])
+        ->execute()
+        ->fetchCol();
       $entity_translations_database = array_flip($select_translations_database);
       if (array_intersect_key($entity->translations->data, $entity_translations_database) == $entity->translations->data &&
-          isset($entity->{$field_name}['und']) && !empty($entity->{$field_name}['und'])) {
-        $add_delete_translatable_field = DELETE_TRANSLATABLE_FIELD;
+          isset($entity->{$field_name}[LANGUAGE_NONE]) && !empty($entity->{$field_name}[LANGUAGE_NONE])) {
+        $add_delete_translatable_field = ZIGGEO_DELETE_TRANSLATABLE_FIELD;
       }
       else {
-        $add_delete_translatable_field = ADD_TRANSLATABLE_FIELD; // or delete empty fields
+        // Add translatable field or delete empty fields.
+        $add_delete_translatable_field = ZIGGEO_ADD_TRANSLATABLE_FIELD;
       }
 
-      if ($add_delete_translatable_field == ADD_TRANSLATABLE_FIELD) {
+      if ($add_delete_translatable_field == ZIGGEO_ADD_TRANSLATABLE_FIELD) {
         $new_translations_items_field = array_intersect_key($entity->$field_name, $entity->translations->data);
         $new_items_field = isset($new_translations_items_field[$langcode]) ? $new_translations_items_field[$langcode] : array();
         $old_translations_items_field = isset($entity->{$field_name}[$entity->translations->original]) ? array_intersect_key($entity->$field_name, array_flip(array($entity->translations->original))) : array();
         $old_items_field = isset($old_translations_items_field[$langcode]) ? $old_translations_items_field[$langcode] : array();
         $field_language_to_add = array_diff_key($new_translations_items_field, $old_translations_items_field);
       }
-      elseif ($add_delete_translatable_field == DELETE_TRANSLATABLE_FIELD) {
+      elseif ($add_delete_translatable_field == ZIGGEO_DELETE_TRANSLATABLE_FIELD) {
         $new_translations_items_field = isset($entity->{$field_name}[$entity->translations->original]) ? array_intersect_key($entity->$field_name, array_flip(array($entity->translations->original))) : array();
         $new_items_field = isset($new_translations_items_field[$langcode]) ? $new_translations_items_field[$langcode] : array();
         $old_translations_items_field = array_intersect_key($entity->$field_name, $entity->translations->data);
@@ -163,25 +165,30 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
 
   $is_add_translation = $is_add_entity_of_translation || !empty($field_language_to_add);
 
-  // Delete all videos that not exists in new version of field (that deleted or replaced)
-  // and remove "temporary" attribute for new video
+  // Delete all videos that not exists in new version of field (that deleted or
+  // replaced) and remove "temporary" attribute for new video
   // if not creating a new revision and not new language.
   if (!$is_add_revision && !$is_add_translation &&
       !($is_change_field_language && $langcode != $entity->language)) {
     $ziggeo = ziggeo_get_ziggeo_object($field_name);
     $items_for_delete = $old_items;
     foreach ($new_items as $delta => $item) {
-      if (in_array($item, $old_items)) {  // If video in new version of field exists in old version of field, then not delete and nothing to do.
+      if (in_array($item, $old_items)) {
+        // If video in new version of field exists in old version of field, then
+        // not delete and nothing to do.
         unset($items_for_delete[array_search($item, $items_for_delete)]);
       }
-      else { // If video in new version of field is new, then remove "temporary" attribute.
+      else {
+        // If video in new version of field is new, then remove "temporary"
+        // attribute.
         ziggeo_remove_temporary_attribute($ziggeo, $item);
       }
     }
-    // Delete all videos that not exists in new version of field (that deleted or replaced)
-    // if not exist in others revisions and not exist in others languages.
-    // Checking contained video in other revisions does not make sense, since
-    // makes a copy of the video when create revision. But it remains for to be on the safe side.
+    // Delete all videos that not exists in new version of field (that deleted
+    // or replaced) if not exist in others revisions and not exist in others
+    // languages. Checking contained video in other revisions does not make
+    // sense, since makes a copy of the video when create revision.
+    // But it remains for to be on the safe side.
     foreach ($items_for_delete as $item_for_delete) {
       if (!ziggeo_field_is_contained_item_in_revisions($entity_type, $entity, $field, $langcode, $item_for_delete) &&
           !ziggeo_field_is_contained_item_in_translations($entity_type, $entity, $field, $langcode, $item_for_delete) &&
@@ -199,7 +206,7 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
     $ziggeo = ziggeo_get_ziggeo_object($field_name);
     foreach ($new_items as $delta => $new_item) {
       if (in_array($new_item, $old_items) ||
-          ($is_add_delete_translatable_field && $add_delete_translatable_field == ADD_TRANSLATABLE_FIELD &&
+          ($is_add_delete_translatable_field && $add_delete_translatable_field == ZIGGEO_ADD_TRANSLATABLE_FIELD &&
           array_column($entity->{$field_name}[$entity->translations->original], 'token') == array_column($entity->{$field_name}[$langcode], 'token'))) {
         $duplicate_video_token = ziggeo_duplicate_server_video($ziggeo, $new_item);
         if ($duplicate_video_token !== NULL) {
@@ -209,7 +216,8 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
           unset($items[$delta]);
         }
       }
-      else { // If video in new revision is new, then remove "temporary" attribute.
+      else {
+        // If video in new revision is new, then remove "temporary" attribute.
         ziggeo_remove_temporary_attribute($ziggeo, $new_item);
       }
     }
@@ -259,7 +267,7 @@ function ziggeo_entity_delete($entity, $entity_type) {
     $revision = reset($revision);
     foreach ($ziggeo_fields as $field_name) {
       $ziggeo = ziggeo_get_ziggeo_object($field_name);
-      foreach ($revision->$field_name as $language => $items) {
+      foreach ($revision->$field_name as $items) {
         foreach ($items as $item) {
           if (!ziggeo_field_is_contained_item_in_default($entity_type, $entity, $entity_fields[$field_name], $entity_fields[$field_name], NULL, $item['token'])) {
             ziggeo_delete_server_video($ziggeo, $item['token']);
@@ -277,8 +285,9 @@ function ziggeo_field_delete_revision($entity_type, $entity, $field, $instance, 
   $ziggeo = ziggeo_get_ziggeo_object($field['field_name']);
 
   // Do not remove the video if it is contained in others revisions.
-  // Checking contained video in other revisions does not make sense, since makes
-  // a copy of the video when create revision. But it remains for to be on the safe side.
+  // Checking contained video in other revisions does not make sense, since
+  // makes a copy of the video when create revision. But it remains for to be on
+  // the safe side.
   foreach ($deleted_revision_items as $deleted_revision_item) {
     if (!ziggeo_field_is_contained_item_in_revisions($entity_type, $entity, $field, $langcode, $deleted_revision_item['token']) &&
         !ziggeo_field_is_contained_item_in_default($entity_type, $entity, $field, $instance, $langcode, $deleted_revision_item['token'])) {
@@ -287,9 +296,8 @@ function ziggeo_field_delete_revision($entity_type, $entity, $field, $instance, 
   }
 }
 
-
 /**
- * Defining Widget for Ziggeo Field Type
+ * Defining Widget for Ziggeo Field Type.
  */
 
 /**
@@ -609,7 +617,8 @@ function ziggeo_field_widget_settings_form_validate(&$form, &$form_state) {
  * Form submit handler for widget settings form.
  */
 function ziggeo_field_widget_settings_form_submit(&$form, &$form_state) {
-  // Work with default field value: delete from server or remove "temporary" attribute for new video.
+  // Work with default field value: delete from server or remove "temporary"
+  // attribute for new video.
   $field_name = $form['#instance']['field_name'];
   $old_default_value = isset($form['#instance']['default_value']) ? $form['#instance']['default_value']['0']['token'] : '';
   $new_default_value = $form_state['values'][$field_name];
@@ -728,7 +737,7 @@ function ziggeo_field_widget_form(&$form, &$form_state, $field, $instance, $lang
 
   switch ($widget_type) {
     case 'record':
-      // No additional attributes
+      // No additional attributes.
       break;
 
     case 'upload':
@@ -764,7 +773,7 @@ function ziggeo_field_widget_form(&$form, &$form_state, $field, $instance, $lang
   );
   $element_token['#weight'] = 1;
 
-  // Creation of remove button
+  // Creation of remove button.
   $remove_button_element = array(
     '#theme' => 'ziggeo_remove_button',
     '#attributes' => array(
@@ -778,7 +787,8 @@ function ziggeo_field_widget_form(&$form, &$form_state, $field, $instance, $lang
   $remove_button_markup = drupal_render($remove_button_element);
 
   $element_ziggeo_remove_button = array(
-    '#type' => 'checkbox', // checkbox is used because submit buttons do not work as it should
+    // Checkbox is used because submit buttons do not work as it should.
+    '#type' => 'checkbox',
     '#attributes' => array(
       'class' => array('ziggeo-remove-checkbox'),
     ),
@@ -911,7 +921,7 @@ function ziggeo_remove_button_ajax_callback(&$form, $form_state) {
     $recording_height = $selected_resolution_array[1];
   }
 
-  // Creation of empty ziggeo widget
+  // Creation of empty ziggeo widget.
   $ziggeo_markup = isset($form[$triggering_element_name][$triggering_element_language][$triggering_element_delta]) ? $form[$triggering_element_name][$triggering_element_language][$triggering_element_delta]['ziggeo_element']['#markup'] : '';
 
   $commands = array();
@@ -952,7 +962,7 @@ function ziggeo_form_field_ui_field_overview_form_alter(&$form, &$form_state, $f
 }
 
 /**
- * Defining Formatters for Ziggeo Field Type
+ * Defining Formatters for Ziggeo Field Type.
  */
 
 /**
@@ -1229,7 +1239,7 @@ function ziggeo_field_formatter_settings_form_validate(&$element, &$form_state) 
   if ($field_name != NULL && $form_state['values']['fields'][$field_name]['type'] == 'ziggeo_player') {
     $settings = $form_state['values']['fields'][$field_name]['settings_edit_form']['settings'];
 
-    // Check match Size of the embedding and Video Recording resolution
+    // Check match Size of the embedding and Video Recording resolution.
     $fields_to_validate = array(
       'embedding_size',
       'popup_size',
@@ -1481,9 +1491,8 @@ function ziggeo_js_alter(&$javascript) {
   $javascript = array_diff_key($javascript, $javascript_data_column_duplicates_to_delete);
 }
 
-
 /**
- * Theming Ziggeo Field
+ * Theming Ziggeo Field.
  */
 
 /**
@@ -1503,10 +1512,11 @@ function ziggeo_theme($existing, $type, $theme, $path) {
 /**
  * Returns HTML for an embed Ziggeo element.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - element: A render element representing the embed Ziggeo element:
- *     - #attributes: Parameters to customize the functionality and behavior of embedding.
+ *     - #attributes: Parameters to customize the functionality and behavior of
+ *       embedding.
  *     - #is_default: Whether or not the value is the default value of field.
  *     - #remove_button_caption: Remove button caption.
  *
@@ -1535,7 +1545,7 @@ function theme_ziggeo_element($variables) {
 /**
  * Returns HTML for a remove button.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - element: A render element representing the remove button:
  *     - #attributes: Attributes of HTML element.
@@ -1592,7 +1602,7 @@ function ziggeo_modules_enabled($modules) {
 }
 
 /**
- * Local functions
+ * Local functions.
  */
 
 /**
@@ -1604,7 +1614,8 @@ function ziggeo_modules_enabled($modules) {
  * @param string $application_token
  *   Token of Ziggeo application, from field settings.
  * @param string $language
- *   (optional) Language (langcode) for recording instructions of Ziggeo element.
+ *   (optional) Language (langcode) for recording instructions of Ziggeo
+ *   element.
  *
  * @return array
  *   An associative array for #attached property of element where the keys are
@@ -1678,7 +1689,7 @@ function ziggeo_drupal_language_map($drupal_language) {
  * @return int
  *   Count of items.
  */
-function ziggeo_calc_unlimfield_count($field) {
+function ziggeo_calc_unlimfield_count(array $field) {
   $count = 0;
   foreach ($field as $item) {
     if (isset($item['#field_name'])) {
@@ -1706,7 +1717,8 @@ function ziggeo_get_ziggeo_object($field_name) {
   $requirements = ziggeo_get_requirements();
   if ($requirements['ZiggeoPhpSdk']['severity'] != 2) {
     libraries_load('ZiggeoPhpSdk');
-  } else {
+  }
+  else {
     drupal_set_message($requirements['ZiggeoPhpSdk']['description'], 'warning');
     return new stdClass();
   }
@@ -1737,10 +1749,10 @@ function ziggeo_get_entity_revision_list($entity_type, $entity) {
     return array();
   }
   $revisions = db_select($info['revision table'], 'r')
-      ->fields('r', array($info['entity keys']['revision']))
-      ->condition($info['entity keys']['id'], $entity->{$info['entity keys']['id']})
-      ->execute()
-      ->fetchAllAssoc($info['entity keys']['revision']);
+    ->fields('r', array($info['entity keys']['revision']))
+    ->condition($info['entity keys']['id'], $entity->{$info['entity keys']['id']})
+    ->execute()
+    ->fetchAllAssoc($info['entity keys']['revision']);
 
   return $revisions;
 }
@@ -1776,7 +1788,7 @@ function ziggeo_field_is_contained_item_in_revisions($entity_type, $entity, $fie
     $revision_object = reset($revision_object);
     $revision_items = $revision_object->$field['field_name'];
     if (isset($revision_items[$langcode])) {
-      foreach ($revision_items[$langcode] as $revision_item_delta => $revision_item) {
+      foreach ($revision_items[$langcode] as $revision_item) {
         if ($revision_item['token'] == $field_item_token) {
           $is_contained_item_in_revisions = TRUE;
         }
@@ -1874,7 +1886,8 @@ function ziggeo_remove_temporary_attribute($ziggeo, $video_token) {
   try {
     if (method_exists($ziggeo, 'videos')) {
       $ziggeo->videos()->update($video_token, $arguments);
-    } else {
+    }
+    else {
       throw new Exception('ZiggeoPhpSdk not available.');
     }
   }
@@ -1905,7 +1918,8 @@ function ziggeo_duplicate_server_video($ziggeo, $video_token) {
       $create_video_response = $ziggeo->videos()->create($arguments);
       unlink($temp_name);
       $duplicate_video_token = $create_video_response->token;
-    } else {
+    }
+    else {
       throw new Exception('ZiggeoPhpSdk not available.');
     }
   }
@@ -1928,7 +1942,8 @@ function ziggeo_delete_server_video($ziggeo, $video_token) {
   try {
     if (method_exists($ziggeo, 'videos')) {
       $ziggeo->videos()->delete($video_token);
-    } else {
+    }
+    else {
       throw new Exception('ZiggeoPhpSdk not available.');
     }
   }
@@ -1947,14 +1962,19 @@ function ziggeo_get_requirements() {
   $requirements = array();
   $t = get_t();
   $library = libraries_detect('ZiggeoPhpSdk');
-  $error_type = isset($library['error']) ? drupal_ucfirst($library['error']) : '';
   $error_message = isset($library['error message']) ? $library['error message'] : '';
 
   if (empty($library['installed'])) {
+    $ziggeo_php_sdk_link = l($t('Ziggeo PHP Server SDK'), $library['download url']);
     $requirements['ZiggeoPhpSdk'] = array(
       'title' => $t('Ziggeo PHP Server SDK'),
       'severity' => 2,
-      'description' => $t('!error You need to download !ZiggeoPhpSdk, extract the archive and place files in the %path directory on your server. Make sure the path to the Ziggeo.php file becomes: "sites/all/libraries/ZiggeoPhpSdk/Ziggeo.php".', array('!error' => $error_message, '!ZiggeoPhpSdk' => l($t('Ziggeo PHP Server SDK'), $library['download url']), '%path' => 'sites/all/libraries/ZiggeoPhpSdk')),
+      'description' => $t('@error You need to download !ZiggeoPhpSdk, extract the archive and place files in the %path directory on your server. Make sure the path to the Ziggeo.php file becomes: "sites/all/libraries/ZiggeoPhpSdk/Ziggeo.php".', array(
+        '@error' => $error_message,
+        '!ZiggeoPhpSdk' => $ziggeo_php_sdk_link,
+        '%path' => 'sites/all/libraries/ZiggeoPhpSdk',
+        )
+      ),
     );
   }
   else {

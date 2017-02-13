@@ -5,6 +5,8 @@
 
 (function ($) {
 
+  "use strict";
+
   Drupal.behaviors.ziggeo = {
     attach: function (context, settings) {
       // Trigger checkbox when click on remove button.
@@ -19,10 +21,17 @@
 
   /**
    * Ajax delivery command to reset ziggeo widget.
+   *
+   * @param {Drupal.Ajax} ajax
+   *   An Ajax object.
+   * @param {object} response
+   *   The Ajax response.
+   * @param {number} status
+   *   The HTTP status code.
    */
   Drupal.ajax.prototype.commands.ziggeo_reset_widget = function (ajax, response, status) {
     var input_element = ajax.element.parentNode.previousElementSibling.previousElementSibling;
-    if (input_element.value != '') {
+    if (input_element.value !== '') {
       var $ziggeo_element = $(ajax.element.parentNode.previousElementSibling.parentNode).find('ziggeo');
       var ziggeo_html = response.ziggeo_element_markup;
       $ziggeo_element.replaceWith(ziggeo_html);

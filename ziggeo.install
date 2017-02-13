@@ -16,12 +16,12 @@ function ziggeo_field_schema($field) {
       'type' => 'varchar',
       'length' => '128',
       'not null' => TRUE,
-  ));
+    ),
+  );
   return array(
     'columns' => $columns,
   );
 }
-
 
 /**
  * Implements hook_requirements().
