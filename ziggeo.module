@@ -550,9 +550,15 @@ function ziggeo_field_widget_settings_form_validate(&$form, &$form_state) {
     else {
       $form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_width']['#attributes']['disabled'] = array('disabled' => 'disabled');
       $form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_height']['#attributes']['disabled'] = array('disabled' => 'disabled');
-      $selected_size_array = explode('x', $settings['embedding_size_fieldset']['embedding_size']);
-      $embedding_width = $selected_size_array[0];
-      $embedding_height = $selected_size_array[1];
+      if ($settings['embedding_size_fieldset']['embedding_size'] == 'responsive') {
+        $embedding_width = '';
+        $embedding_height = '';
+      }
+      else {
+        $selected_size_array = explode('x', $settings['embedding_size_fieldset']['embedding_size']);
+        $embedding_width = $selected_size_array[0];
+        $embedding_height = $selected_size_array[1];
+      }
       $form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_width']['#value'] = $embedding_width;
       $form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_height']['#value'] = $embedding_height;
     }
