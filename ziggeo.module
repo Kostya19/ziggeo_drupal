@@ -331,6 +331,7 @@ function ziggeo_field_widget_info() {
           'recording_width' => 640,
           'recording_height' => 480,
         ),
+        'disable_snapshots' => FALSE,
       ),
     ),
   );
@@ -472,6 +473,12 @@ function ziggeo_field_widget_settings_form($field, $instance) {
     '#size' => 4,
     '#maxlength' => 4,
     '#attributes' => $recording_attributes,
+  );
+
+  $form['disable_snapshots'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Disable selection of snapshots'),
+    '#default_value' => $settings['disable_snapshots'],
   );
 
   return $form;
@@ -764,6 +771,10 @@ function ziggeo_field_widget_form(&$form, &$form_state, $field, $instance, $lang
     case 'record_upload':
       $ziggeo_element['#attributes']['ziggeo-perms'] = 'allowupload';
       break;
+  }
+
+  if ($widget_settings['disable_snapshots'] == TRUE) {
+    $ziggeo_element['#attributes']['ziggeo-disable_snapshots'] = '';
   }
 
   $field_default_value = field_get_default_value($element['#entity_type'], $element['#entity'], $field, $instance, $langcode);
