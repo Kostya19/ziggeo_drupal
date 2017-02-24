@@ -17,8 +17,8 @@
         }
       });
 
-      //Follow the status of video recording and issue a warning if the video
-      //has not been completed when submitting.
+      // Follow the status of video recording and issue a warning if the video
+      // has not been completed when submitting.
       var ziggeo_status = '';
       ZiggeoApi.Events.on('recording', function (data) {
         ziggeo_status = 'recording';
@@ -31,7 +31,8 @@
             ziggeo_status !== 'submitted') {
           if (confirm(Drupal.t('You should complete recording and uploading of video. Otherwise, video data will be lost. Do you want to continue anyway?'))) {
             return true;
-          } else {
+          }
+          else {
             return false;
           }
         }
