@@ -782,7 +782,7 @@ function ziggeo_field_widget_form(&$form, &$form_state, $field, $instance, $lang
     $ziggeo_element['#is_default'] = TRUE;
   }
 
-  $remove_button_caption = ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) ? 'Remove' : 'Reset';
+  $remove_button_caption = ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) ? t('Remove') : t('Reset');
   $ziggeo_element['#remove_button_caption'] = $remove_button_caption;
 
   $element_ziggeo_element = $element + array(
