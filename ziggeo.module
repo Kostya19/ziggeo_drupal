@@ -930,7 +930,7 @@ function ziggeo_remove_button_ajax_callback(&$form, $form_state) {
 
   $commands = array();
 
-  // Call JS function for reset widget (see ziggeo.js).
+  // Call JS function for reset widget (see ziggeo_widget.js).
   $commands[] = array(
     'command' => 'ziggeo_reset_widget',
     'ziggeo_element_markup' => $ziggeo_markup,
