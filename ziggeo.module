@@ -98,6 +98,8 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
   $is_add_entity_of_translation = !isset($entity->original) && isset($entity->translation_source);
   $is_translatable_field = isset($field['translatable']) && $field['translatable'] == 1;
   $is_add_delete_translatable_field = !isset($entity->original) && entity_extract_ids($entity_type, $entity)[0] !== NULL;
+  define('ZIGGEO_ADD_TRANSLATABLE_FIELD', 1);
+  define('ZIGGEO_DELETE_TRANSLATABLE_FIELD', 2);
   $field_language_to_add = (
       isset($entity->original->$field_name) &&
       isset($entity->original->language) &&
@@ -134,8 +136,6 @@ function ziggeo_field_presave($entity_type, $entity, $field, $instance, $langcod
 
   if ($is_add_delete_translatable_field) {
     if ($is_translatable_field) {
-      define('ZIGGEO_ADD_TRANSLATABLE_FIELD', 1);
-      define('ZIGGEO_DELETE_TRANSLATABLE_FIELD', 2);
       $select_translations_database = db_select('field_data_' . $field_name, 'f')
         ->fields('f', array('language'))
         ->condition('entity_id', entity_extract_ids($entity_type, $entity)[0])
