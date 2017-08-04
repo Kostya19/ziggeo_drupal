@@ -1463,10 +1463,20 @@ function ziggeo_field_formatter_view($entity_type, $entity, $field, $instance, $
     case 'ziggeo_image':
       foreach ($items as $delta => $item) {
         $video_token = $item['token'];
-        $image = 'http://embed.ziggeo.com/v1/applications/' . $field_settings['application_token'] . '/videos/' . $video_token . '/image';
-        $file = system_retrieve_file($image, 'public://' . $video_token . '.jpg', TRUE, FILE_EXISTS_REPLACE);
-        $file->status = 0;
-        file_save($file);
+        $ziggeo = ziggeo_get_ziggeo_object($field['field_name']);
+        $ziggeo_video = $ziggeo->videos()->get($video_token);
+        $image_filename = file_default_scheme() . '://' . $video_token . '_' . $ziggeo_video->default_stream->token . '.jpg';
+        $files = file_load_multiple(array(), array('uri' => $image_filename));
+        if (!file_exists($image_filename) || empty($files)) {
+          $image_url = 'http://' . $ziggeo_video->embed_image_url;
+          $file = system_retrieve_file($image_url, $image_filename, TRUE, FILE_EXISTS_REPLACE);
+          // Set temporary status of file, since images is external resource.
+          $file->status = 0;
+          file_save($file);
+        }
+        else {
+          $file = reset($files);
+        }
 
         $element[$delta] = array(
           '#theme' => 'image_formatter',
