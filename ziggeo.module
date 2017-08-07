@@ -77,6 +77,24 @@ function ziggeo_field_settings_form($field, $instance, $has_data) {
 }
 
 /**
+ * Form validation handler for settings form.
+ */
+function ziggeo_field_settings_form_validate(&$form, &$form_state) {
+  $settings = $form_state['values']['field']['settings'];
+
+  // Check for correctness of keys.
+  if (!ctype_xdigit($settings['application_token']) || strlen($settings['application_token']) != 32) {
+    form_set_error('field][settings][application_token', t('Application Token string is not correct.'));
+  }
+  if (!ctype_xdigit($settings['private_key']) || strlen($settings['private_key']) != 32) {
+    form_set_error('field][settings][private_key', t('Private Key string is not correct.'));
+  }
+  if (!ctype_xdigit($settings['encryption_key']) || strlen($settings['encryption_key']) != 32) {
+    form_set_error('field][settings][encryption_key', t('Encryption Key string is not correct.'));
+  }
+}
+
+/**
  * Implements hook_field_is_empty().
  */
 function ziggeo_field_is_empty($item, $field) {
@@ -635,6 +653,12 @@ function ziggeo_field_widget_settings_form_validate(&$form, &$form_state) {
       form_set_error('instance][widget][settings][recording_resolution_fieldset][recording_height', t('Height field is required for custom video recording resolution.'));
     }
   }
+
+  // Check: Width and Height must be a positive integer.
+  element_validate_integer_positive($form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_width'], $form_state);
+  element_validate_integer_positive($form['instance']['widget']['settings']['embedding_size_fieldset']['embedding_height'], $form_state);
+  element_validate_integer_positive($form['instance']['widget']['settings']['recording_resolution_fieldset']['recording_width'], $form_state);
+  element_validate_integer_positive($form['instance']['widget']['settings']['recording_resolution_fieldset']['recording_height'], $form_state);
 }
 
 /**
@@ -898,6 +922,13 @@ function ziggeo_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
+  // Add validate and submit function for field settings form.
+  if ((isset($form['instance']['widget']['module']['#value']) &&
+      $form['instance']['widget']['module']['#value'] == 'ziggeo') ||
+      (isset($form['field']['module']['#value']) &&
+       $form['field']['module']['#value'] == 'ziggeo')) {
+    $form['#validate'][] = 'ziggeo_field_settings_form_validate';
+  }
   // Add validate and submit function for widget settings form.
   if (isset($form['instance']['widget']['module']['#value']) &&
       $form['instance']['widget']['module']['#value'] == 'ziggeo') {
@@ -1351,6 +1382,12 @@ function ziggeo_field_formatter_settings_form_validate(&$element, &$form_state) 
         form_set_error('fields][field_ziggeo][settings_edit_form][settings][popup_height', t('Height field is required for custom size of the popup.'));
       }
     }
+
+  // Check: Width and Height must be a positive integer.
+  element_validate_integer_positive($element['format']['settings_edit_form']['settings']['embedding_width'], $form_state);
+  element_validate_integer_positive($element['format']['settings_edit_form']['settings']['embedding_height'], $form_state);
+  element_validate_integer_positive($element['format']['settings_edit_form']['settings']['popup_width'], $form_state);
+  element_validate_integer_positive($element['format']['settings_edit_form']['settings']['popup_height'], $form_state);
   }
 }
 
@@ -1549,7 +1586,7 @@ function theme_ziggeo_element(array $variables) {
   $output .= '<ziggeo';
   $attributes = $variables['ziggeo_element']['#attributes'];
   foreach ($attributes as $name => $value) {
-    $output .= ' ' . $name . '="' . $value . '"';
+    $output .= ' ' . $name . '="' . check_plain($value) . '"';
   }
   $output .= '>';
   $output .= '</ziggeo>';
@@ -1637,6 +1674,7 @@ function ziggeo_modules_enabled($modules) {
  */
 function ziggeo_libraries($application_token, $language = NULL) {
   ziggeo_check_requirements();
+  $application_token = check_plain($application_token);
   $attached_array = array(
     'css' => array(
       '//assets-cdn.ziggeo.com/v1-stable/ziggeo.css' => array('type' => 'external', 'weight' => 1),
