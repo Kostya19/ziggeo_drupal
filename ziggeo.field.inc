@@ -1331,7 +1331,8 @@ function ziggeo_field_formatter_settings_form_validate(&$element, &$form_state) 
         unset($element['format']['settings_edit_form']['settings']['popup_width']['#attributes']['disabled']);
         unset($element['format']['settings_edit_form']['settings']['popup_height']['#attributes']['disabled']);
       }
-      elseif ($settings['popup_size'] == 'responsive') {
+      elseif ($settings['popup_size'] == 'responsive' ||
+              $settings['popup_size'] == 'optimal') {
         // Set 'disabled' attributes and set empty values of width and height
         // since when form validate error, attributes will be reset to initial.
         $element['format']['settings_edit_form']['settings']['popup_width']['#attributes']['disabled'] = array('disabled' => 'disabled');
